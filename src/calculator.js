@@ -8,10 +8,31 @@
  * - Subtraction (-): Subtract one number from another
  * - Multiplication (*): Multiply two numbers
  * - Division (/): Divide one number by another
+ * - Modulo (%): Returns the remainder of division
+ * - Exponentiation (^): Raises base to the power of exponent
+ * - Square Root (sqrt): Returns the square root of a number
  * 
  * Usage: node calculator.js <number1> <operation> <number2>
  * Example: node calculator.js 10 + 5
  */
+
+function modulo(a, b) {
+  if (b === 0) {
+    throw new Error('Cannot perform modulo by zero');
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error('Cannot calculate square root of a negative number');
+  }
+  return Math.sqrt(n);
+}
 
 function calculator(num1, operation, num2) {
   // Convert inputs to numbers
@@ -51,8 +72,23 @@ function calculator(num1, operation, num2) {
       result = a / b;
       break;
 
+    // Modulo: Return remainder of division
+    case '%':
+      result = modulo(a, b);
+      break;
+
+    // Exponentiation: Raise base to power
+    case '^':
+      result = power(a, b);
+      break;
+
+    // Square Root: Return square root of number
+    case 'sqrt':
+      result = squareRoot(a);
+      break;
+
     default:
-      console.error(`Error: Invalid operation '${operation}'. Supported operations: +, -, *, /`);
+      console.error(`Error: Invalid operation '${operation}'. Supported operations: +, -, *, /, %, ^, sqrt`);
       process.exit(1);
   }
 
@@ -62,16 +98,27 @@ function calculator(num1, operation, num2) {
 // Get command-line arguments
 const args = process.argv.slice(2);
 
-// Validate argument count
-if (args.length !== 3) {
-  console.error('Usage: node calculator.js <number1> <operation> <number2>');
-  console.error('Operations: +, -, *, /');
-  console.error('Example: node calculator.js 10 + 5');
-  process.exit(1);
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { calculator, modulo, power, squareRoot };
 }
 
-// Execute calculation
-const [num1, operation, num2] = args;
-const result = calculator(num1, operation, num2);
+// Execute calculation only if this script is run directly
+if (require.main === module) {
+  // Validate argument count
+  if (args.length !== 3) {
+    console.error('Usage: node calculator.js <number1> <operation> <number2>');
+    console.error('Operations: +, -, *, /, %, ^, sqrt');
+    console.error('Example: node calculator.js 10 + 5');
+    process.exit(1);
+  }
 
-console.log(`${num1} ${operation} ${num2} = ${result}`);
+  try {
+    const [num1, operation, num2] = args;
+    const result = calculator(num1, operation, num2);
+    console.log(`${num1} ${operation} ${num2} = ${result}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+}
